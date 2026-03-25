@@ -41,7 +41,7 @@ export default async function SessionsPage() {
 
   return (
     <main style={{ maxWidth: 960, margin: "2rem auto", fontFamily: "sans-serif" }}>
-      <h1>Sessions</h1>
+      <h1>Sessions Dashboard</h1>
 
       {/* Summary cards */}
       <section
