@@ -13,17 +13,40 @@ type SessionRow = {
   business_id?: string | null;
 };
 
-export default async function SessionsPage() {
-  const { data, error } = await supabase
+export default async function SessionsPage({
+  searchParams,
+}: {
+  searchParams?: { room?: string; date?: string };
+}) {
+  const room = searchParams?.room || "";
+  const date = searchParams?.date || "";
+
+  let query = supabase
     .from("sessions")
     .select("*")
     .order("check_in", { ascending: false })
     .limit(200);
 
+  if (room) {
+    query = query.eq("room_name", room);
+  }
+
+  if (date) {
+    const start = new Date(date);
+    const end = new Date(date);
+    end.setDate(end.getDate() + 1);
+
+    query = query
+      .gte("check_in", start.toISOString())
+      .lt("check_in", end.toISOString());
+  }
+
+  const { data, error } = await query;
+
   if (error) {
     return (
       <main style={{ maxWidth: 960, margin: "2rem auto", fontFamily: "sans-serif" }}>
-        <h1>Sessions</h1>
+        <h1>Sessions Dashboard</h1>
         <p style={{ color: "red" }}>Error: {error.message}</p>
       </main>
     );
@@ -42,6 +65,46 @@ export default async function SessionsPage() {
   return (
     <main style={{ maxWidth: 960, margin: "2rem auto", fontFamily: "sans-serif" }}>
       <h1>Sessions Dashboard</h1>
+
+      <form
+        style={{ marginTop: "1rem", display: "flex", gap: "0.5rem", flexWrap: "wrap" }}
+        method="get"
+      >
+        <input
+          type="text"
+          name="room"
+          placeholder="Filter by room"
+          defaultValue={room}
+          style={{
+            padding: "0.4rem 0.6rem",
+            borderRadius: "0.3rem",
+            border: "1px solid #ccc",
+          }}
+        />
+        <input
+          type="date"
+          name="date"
+          defaultValue={date}
+          style={{
+            padding: "0.4rem 0.6rem",
+            borderRadius: "0.3rem",
+            border: "1px solid #ccc",
+          }}
+        />
+        <button
+          type="submit"
+          style={{
+            padding: "0.4rem 0.8rem",
+            borderRadius: "0.3rem",
+            border: "none",
+            background: "#111827",
+            color: "white",
+            cursor: "pointer",
+          }}
+        >
+          Apply
+        </button>
+      </form>
 
       {/* Summary cards */}
       <section
@@ -102,12 +165,24 @@ export default async function SessionsPage() {
       >
         <thead>
           <tr>
-            <th style={{ borderBottom: "1px solid #ccc", textAlign: "left", padding: "0.5rem" }}>ID</th>
-            <th style={{ borderBottom: "1px solid #ccc", textAlign: "left", padding: "0.5rem" }}>Business</th>
-            <th style={{ borderBottom: "1px solid #ccc", textAlign: "left", padding: "0.5rem" }}>Room</th>
-            <th style={{ borderBottom: "1px solid #ccc", textAlign: "left", padding: "0.5rem" }}>Check-in</th>
-            <th style={{ borderBottom: "1px solid #ccc", textAlign: "left", padding: "0.5rem" }}>Check-out</th>
-            <th style={{ borderBottom: "1px solid #ccc", textAlign: "left", padding: "0.5rem" }}>Duration (min)</th>
+            <th style={{ borderBottom: "1px solid #ccc", textAlign: "left", padding: "0.5rem" }}>
+              ID
+            </th>
+            <th style={{ borderBottom: "1px solid #ccc", textAlign: "left", padding: "0.5rem" }}>
+              Business
+            </th>
+            <th style={{ borderBottom: "1px solid #ccc", textAlign: "left", padding: "0.5rem" }}>
+              Room
+            </th>
+            <th style={{ borderBottom: "1px solid #ccc", textAlign: "left", padding: "0.5rem" }}>
+              Check-in
+            </th>
+            <th style={{ borderBottom: "1px solid #ccc", textAlign: "left", padding: "0.5rem" }}>
+              Check-out
+            </th>
+            <th style={{ borderBottom: "1px solid #ccc", textAlign: "left", padding: "0.5rem" }}>
+              Duration (min)
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -131,7 +206,10 @@ export default async function SessionsPage() {
           ))}
           {sessions.length === 0 && (
             <tr>
-              <td colSpan={6} style={{ padding: "1rem", textAlign: "center", color: "#666" }}>
+              <td
+                colSpan={6}
+                style={{ padding: "1rem", textAlign: "center", color: "#666" }}
+              >
                 No sessions yet.
               </td>
             </tr>
