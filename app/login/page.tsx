@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,16 +21,28 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // For now, fake login: accept anything
-      // Later we'll call Supabase Auth here
       if (!email || !password) {
         throw new Error("Please enter email and password");
       }
 
-      // Simulate a small delay
-      await new Promise((res) => setTimeout(res, 500));
+      // Try to sign in with Supabase
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-      // Redirect to dashboard
+      if (error) {
+        // If sign-in fails, try to sign up (create account)
+        const { error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+        if (signUpError) {
+          throw signUpError;
+        }
+      }
+
+      // On success, go to dashboard
       router.push("/sessions");
     } catch (err: any) {
       setError(err.message || "Something went wrong");
@@ -62,7 +79,10 @@ export default function LoginPage() {
           Enter your email and password to access your dashboard.
         </p>
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+        <form
+          onSubmit={handleSubmit}
+          style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}
+        >
           <div>
             <label
               htmlFor="email"
