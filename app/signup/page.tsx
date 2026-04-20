@@ -40,13 +40,11 @@ export default function SignupPage() {
         throw signUpError;
       }
 
-      // If email confirmation is off, user should have a session and can go straight to onboarding
       if (data.session) {
         router.push("/onboarding");
         return;
       }
 
-      // If email confirmation is on, send them to login with a friendly message later if needed
       router.push("/login");
     } catch (err: any) {
       setError(err.message || "Something went wrong");
@@ -76,10 +74,23 @@ export default function SignupPage() {
           boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
         }}
       >
-        <h1 style={{ fontSize: "1.5rem", fontWeight: 600, marginBottom: "0.5rem" }}>
+        <h1
+          style={{
+            fontSize: "1.5rem",
+            fontWeight: 600,
+            marginBottom: "0.5rem",
+          }}
+        >
           Sign up
         </h1>
-        <p style={{ fontSize: "0.9rem", color: "#6b7280", marginBottom: "1.5rem" }}>
+
+        <p
+          style={{
+            fontSize: "0.9rem",
+            color: "#6b7280",
+            marginBottom: "1.5rem",
+          }}
+        >
           Create an account for your business to start tracking sessions.
         </p>
 
@@ -88,9 +99,13 @@ export default function SignupPage() {
           style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}
         >
           <div>
-            abel
+            <label
               htmlFor="business"
-              style={{ display: "block", fontSize: "0.85rem", marginBottom: "0.25rem" }}
+              style={{
+                display: "block",
+                fontSize: "0.85rem",
+                marginBottom: "0.25rem",
+              }}
             >
               Business name
             </label>
@@ -109,9 +124,13 @@ export default function SignupPage() {
           </div>
 
           <div>
-            abel
+            <label
               htmlFor="email"
-              style={{ display: "block", fontSize: "0.85rem", marginBottom: "0.25rem" }}
+              style={{
+                display: "block",
+                fontSize: "0.85rem",
+                marginBottom: "0.25rem",
+              }}
             >
               Work email
             </label>
@@ -131,9 +150,13 @@ export default function SignupPage() {
           </div>
 
           <div>
-            abel
+            <label
               htmlFor="password"
-              style={{ display: "block", fontSize: "0.85rem", marginBottom: "0.25rem" }}
+              style={{
+                display: "block",
+                fontSize: "0.85rem",
+                marginBottom: "0.25rem",
+              }}
             >
               Password
             </label>
@@ -153,9 +176,7 @@ export default function SignupPage() {
           </div>
 
           {error && (
-            <p style={{ color: "#b91c1c", fontSize: "0.85rem" }}>
-              {error}
-            </p>
+            <p style={{ color: "#b91c1c", fontSize: "0.85rem" }}>{error}</p>
           )}
 
           <button
@@ -188,7 +209,11 @@ export default function SignupPage() {
           Already have an account?{" "}
           <a
             href="/login"
-            style={{ color: "#111827", fontWeight: 500, textDecoration: "none" }}
+            style={{
+              color: "#111827",
+              fontWeight: 500,
+              textDecoration: "none",
+            }}
           >
             Log in
           </a>
