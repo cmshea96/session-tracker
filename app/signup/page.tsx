@@ -10,23 +10,20 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function SignupPage() {
   const router = useRouter();
+
+  const [businessName, setBusinessName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [businessName, setBusinessName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
     setLoading(true);
+    setError(null);
 
     try {
-      if (!email || !password || !businessName) {
-        throw new Error("Please fill in all fields");
-      }
-
-      const { data, error: signUpError } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -36,16 +33,11 @@ export default function SignupPage() {
         },
       });
 
-      if (signUpError) {
-        throw signUpError;
+      if (error) {
+        throw error;
       }
 
-      if (data.session) {
-        router.push("/onboarding");
-        return;
-      }
-
-      router.push("/login");
+      router.push("/onboarding");
     } catch (err: any) {
       setError(err.message || "Something went wrong");
     } finally {
@@ -60,25 +52,27 @@ export default function SignupPage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        fontFamily: "sans-serif",
         background: "#f3f4f6",
+        fontFamily: "sans-serif",
+        padding: "1.5rem",
       }}
     >
       <div
         style={{
           width: "100%",
-          maxWidth: 420,
+          maxWidth: "420px",
+          background: "#ffffff",
+          borderRadius: "12px",
+          boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
           padding: "2rem",
-          borderRadius: "0.75rem",
-          background: "white",
-          boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
         }}
       >
         <h1
           style={{
-            fontSize: "1.5rem",
-            fontWeight: 600,
+            fontSize: "1.75rem",
+            fontWeight: 700,
             marginBottom: "0.5rem",
+            color: "#111827",
           }}
         >
           Sign up
@@ -86,39 +80,43 @@ export default function SignupPage() {
 
         <p
           style={{
-            fontSize: "0.9rem",
             color: "#6b7280",
             marginBottom: "1.5rem",
+            fontSize: "0.95rem",
           }}
         >
           Create an account for your business to start tracking sessions.
         </p>
 
         <form
-          onSubmit={handleSubmit}
-          style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}
+          onSubmit={handleSignup}
+          style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
         >
           <div>
             <label
-              htmlFor="business"
+              htmlFor="businessName"
               style={{
                 display: "block",
-                fontSize: "0.85rem",
-                marginBottom: "0.25rem",
+                marginBottom: "0.35rem",
+                fontSize: "0.9rem",
+                fontWeight: 500,
+                color: "#111827",
               }}
             >
               Business name
             </label>
             <input
-              id="business"
+              id="businessName"
               type="text"
               value={businessName}
               onChange={(e) => setBusinessName(e.target.value)}
+              required
               style={{
                 width: "100%",
-                padding: "0.5rem 0.6rem",
-                borderRadius: "0.4rem",
+                padding: "0.75rem",
                 border: "1px solid #d1d5db",
+                borderRadius: "8px",
+                fontSize: "1rem",
               }}
             />
           </div>
@@ -128,23 +126,26 @@ export default function SignupPage() {
               htmlFor="email"
               style={{
                 display: "block",
-                fontSize: "0.85rem",
-                marginBottom: "0.25rem",
+                marginBottom: "0.35rem",
+                fontSize: "0.9rem",
+                fontWeight: 500,
+                color: "#111827",
               }}
             >
-              Work email
+              Email
             </label>
             <input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
+              required
               style={{
                 width: "100%",
-                padding: "0.5rem 0.6rem",
-                borderRadius: "0.4rem",
+                padding: "0.75rem",
                 border: "1px solid #d1d5db",
+                borderRadius: "8px",
+                fontSize: "1rem",
               }}
             />
           </div>
@@ -154,8 +155,10 @@ export default function SignupPage() {
               htmlFor="password"
               style={{
                 display: "block",
-                fontSize: "0.85rem",
-                marginBottom: "0.25rem",
+                marginBottom: "0.35rem",
+                fontSize: "0.9rem",
+                fontWeight: 500,
+                color: "#111827",
               }}
             >
               Password
@@ -165,33 +168,37 @@ export default function SignupPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              autoComplete="new-password"
+              required
               style={{
                 width: "100%",
-                padding: "0.5rem 0.6rem",
-                borderRadius: "0.4rem",
+                padding: "0.75rem",
                 border: "1px solid #d1d5db",
+                borderRadius: "8px",
+                fontSize: "1rem",
               }}
             />
           </div>
 
           {error && (
-            <p style={{ color: "#b91c1c", fontSize: "0.85rem" }}>{error}</p>
+            <p style={{ color: "#dc2626", fontSize: "0.9rem", margin: 0 }}>
+              {error}
+            </p>
           )}
 
           <button
             type="submit"
             disabled={loading}
             style={{
-              marginTop: "0.5rem",
               width: "100%",
-              padding: "0.6rem 0.8rem",
-              borderRadius: "0.4rem",
+              padding: "0.85rem",
+              borderRadius: "8px",
               border: "none",
-              background: loading ? "#6b7280" : "#111827",
-              color: "white",
-              fontWeight: 500,
-              cursor: loading ? "default" : "pointer",
+              background: "#111827",
+              color: "#ffffff",
+              fontSize: "1rem",
+              fontWeight: 600,
+              cursor: loading ? "not-allowed" : "pointer",
+              opacity: loading ? 0.7 : 1,
             }}
           >
             {loading ? "Creating account..." : "Create account"}
@@ -200,21 +207,14 @@ export default function SignupPage() {
 
         <p
           style={{
-            marginTop: "0.75rem",
-            fontSize: "0.85rem",
-            color: "#6b7280",
+            marginTop: "1rem",
             textAlign: "center",
+            fontSize: "0.9rem",
+            color: "#6b7280",
           }}
         >
           Already have an account?{" "}
-          <a
-            href="/login"
-            style={{
-              color: "#111827",
-              fontWeight: 500,
-              textDecoration: "none",
-            }}
-          >
+          <a href="/login" style={{ color: "#111827", fontWeight: 500 }}>
             Log in
           </a>
         </p>
