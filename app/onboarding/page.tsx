@@ -24,7 +24,10 @@ export default function OnboardingPage() {
     async function loadUser() {
       const {
         data: { user },
+        error,
       } = await supabase.auth.getUser();
+
+      console.log("onboarding getUser result", { user, error });
 
       if (!user) {
         router.push("/login");
@@ -45,7 +48,7 @@ export default function OnboardingPage() {
 
     loadUser();
   }, [router]);
-
+  
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
