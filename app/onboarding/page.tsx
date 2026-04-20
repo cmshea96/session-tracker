@@ -20,14 +20,46 @@ export default function OnboardingPage() {
   const [checkingUser, setCheckingUser] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function loadUser() {
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
+    useEffect(() => {
+    let cancelled = false;
 
-      console.log("onboarding getUser result", { user, error });
+    async function loadUser() {
+      const first = await supabase.auth.getUser();
+      if (cancelled) return;
+
+      // First attempt: if no user and no error, try once more after a short delay
+      if (!first.data.user && !first.error) {
+        setTimeout(async () => {
+          const retry = await supabase.auth.getUser();
+          if (cancelled) return;
+
+          console.log("onboarding getUser retry", retry);
+
+          if (!retry.data.user) {
+            router.push("/login");
+            return;
+          }
+
+          const user = retry.data.user;
+
+          if (user.email) {
+            setContactEmail(user.email);
+          }
+
+          const savedBusinessName = user.user_metadata?.business_name;
+          if (savedBusinessName) {
+            setBusinessName(savedBusinessName);
+          }
+
+          setCheckingUser(false);
+        }, 300);
+
+        return;
+      }
+
+      console.log("onboarding getUser first", first);
+
+      const user = first.data.user;
 
       if (!user) {
         router.push("/login");
@@ -47,8 +79,12 @@ export default function OnboardingPage() {
     }
 
     loadUser();
+
+    return () => {
+      cancelled = true;
+    };
   }, [router]);
-  
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
