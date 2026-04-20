@@ -26,30 +26,28 @@ export default function SignupPage() {
         throw new Error("Please fill in all fields");
       }
 
-      // 1) Create the user
-      const { data, error } = await supabase.auth.signUp({
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            business_name: businessName,
+          },
+        },
       });
-      if (error) throw error;
 
-      const userId = data.user?.id;
-      if (!userId) {
-        throw new Error("User not created");
+      if (signUpError) {
+        throw signUpError;
       }
 
-      // 2) Create a business record tied to this user
-      const { error: businessError } = await supabase
-        .from("businesses")
-        .insert({
-          owner_id: userId,
-          name: businessName,
-        });
+      // If email confirmation is off, user should have a session and can go straight to onboarding
+      if (data.session) {
+        router.push("/onboarding");
+        return;
+      }
 
-      if (businessError) throw businessError;
-
-      // 3) Go to dashboard
-      router.push("/sessions");
+      // If email confirmation is on, send them to login with a friendly message later if needed
+      router.push("/login");
     } catch (err: any) {
       setError(err.message || "Something went wrong");
     } finally {
@@ -90,7 +88,7 @@ export default function SignupPage() {
           style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}
         >
           <div>
-            <label
+            abel
               htmlFor="business"
               style={{ display: "block", fontSize: "0.85rem", marginBottom: "0.25rem" }}
             >
@@ -111,7 +109,7 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <label
+            abel
               htmlFor="email"
               style={{ display: "block", fontSize: "0.85rem", marginBottom: "0.25rem" }}
             >
@@ -133,7 +131,7 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <label
+            abel
               htmlFor="password"
               style={{ display: "block", fontSize: "0.85rem", marginBottom: "0.25rem" }}
             >
@@ -178,6 +176,23 @@ export default function SignupPage() {
             {loading ? "Creating account..." : "Create account"}
           </button>
         </form>
+
+        <p
+          style={{
+            marginTop: "0.75rem",
+            fontSize: "0.85rem",
+            color: "#6b7280",
+            textAlign: "center",
+          }}
+        >
+          Already have an account?{" "}
+          <a
+            href="/login"
+            style={{ color: "#111827", fontWeight: 500, textDecoration: "none" }}
+          >
+            Log in
+          </a>
+        </p>
       </div>
     </main>
   );

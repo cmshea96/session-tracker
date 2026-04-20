@@ -25,24 +25,17 @@ export default function LoginPage() {
         throw new Error("Please enter email and password");
       }
 
-      // Try to sign in with Supabase
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
-        // If sign-in fails, try to sign up (create account)
-        const { error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-        });
-        if (signUpError) {
-          throw signUpError;
-        }
+        throw error;
       }
 
-      // On success, go to dashboard
+      // TEMP: send to dashboard after login.
+      // Later we'll decide: /onboarding or /sessions based on businesses row.
       router.push("/sessions");
     } catch (err: any) {
       setError(err.message || "Something went wrong");
@@ -72,10 +65,22 @@ export default function LoginPage() {
           boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
         }}
       >
-        <h1 style={{ fontSize: "1.5rem", fontWeight: 600, marginBottom: "0.5rem" }}>
+        <h1
+          style={{
+            fontSize: "1.5rem",
+            fontWeight: 600,
+            marginBottom: "0.5rem",
+          }}
+        >
           Log in
         </h1>
-        <p style={{ fontSize: "0.9rem", color: "#6b7280", marginBottom: "1.5rem" }}>
+        <p
+          style={{
+            fontSize: "0.9rem",
+            color: "#6b7280",
+            marginBottom: "1.5rem",
+          }}
+        >
           Enter your email and password to access your dashboard.
         </p>
 
@@ -86,7 +91,11 @@ export default function LoginPage() {
           <div>
             <label
               htmlFor="email"
-              style={{ display: "block", fontSize: "0.85rem", marginBottom: "0.25rem" }}
+              style={{
+                display: "block",
+                fontSize: "0.85rem",
+                marginBottom: "0.25rem",
+              }}
             >
               Email
             </label>
@@ -108,7 +117,11 @@ export default function LoginPage() {
           <div>
             <label
               htmlFor="password"
-              style={{ display: "block", fontSize: "0.85rem", marginBottom: "0.25rem" }}
+              style={{
+                display: "block",
+                fontSize: "0.85rem",
+                marginBottom: "0.25rem",
+              }}
             >
               Password
             </label>
@@ -128,9 +141,7 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <p style={{ color: "#b91c1c", fontSize: "0.85rem" }}>
-              {error}
-            </p>
+            <p style={{ color: "#b91c1c", fontSize: "0.85rem" }}>{error}</p>
           )}
 
           <button
@@ -151,6 +162,23 @@ export default function LoginPage() {
             {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
+
+        <p
+          style={{
+            marginTop: "0.75rem",
+            fontSize: "0.85rem",
+            color: "#6b7280",
+            textAlign: "center",
+          }}
+        >
+          Need an account?{" "}
+          <a
+            href="/signup"
+            style={{ color: "#111827", fontWeight: 500, textDecoration: "none" }}
+          >
+            Sign up
+          </a>
+        </p>
       </div>
     </main>
   );
